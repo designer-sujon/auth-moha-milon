@@ -2,8 +2,9 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { auth } from "../firebas.init";
 
 export const AuthContext = createContext(null);
@@ -11,33 +12,53 @@ export const AuthContext = createContext(null);
 const AuthProviders = ({ children }) => {
 
     const [user, setUser]= useState(null)
+    const [loading, setLoading] = useState(true)
 
   const name = "Potato Alu mia";
 
   const createUser = (email, password) => {
+    setLoading(true)
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   const signInUser = (email, password) => {
+    setLoading(true)
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  onAuthStateChanged(auth, currentUser=>{
-    if(currentUser){
-        console.log('currently logged user', currentUser);
-        setUser(currentUser)
+  const signOutUser = () =>{
+    setLoading(true)
+    return signOut(auth);
+  }
+
+  useEffect(()=>{
+    const unSubscribe = onAuthStateChanged(auth, currentUser=>{
+      console.log("current user", currentUser);
+      setUser(currentUser)
+      setLoading(false)
+    })
+    return () =>{
+      unSubscribe()
     }
-    else{
-        console.log("No user logged");
-        setUser(null)
-    }
-  })
+  },[])
+
+  // onAuthStateChanged(auth, currentUser=>{
+  //   if(currentUser){
+  //       console.log('currently logged user', currentUser);
+  //       setUser(currentUser)
+  //   }
+  //   else{
+  //       console.log("No user logged");
+  //       setUser(null)
+  //   }
+  // })
 
   const authInfo = {
-    name,
     user,
+    loading,
     createUser,
     signInUser,
+    signOutUser
   };
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
