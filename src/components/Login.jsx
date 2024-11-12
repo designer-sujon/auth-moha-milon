@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../providers/AuthProviders";
 
 const Login = () => {
-  const { signInUser } = useContext(AuthContext);
+  const { signInUser, signInWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate()
 
   const handleLogin = (e) => {
@@ -23,6 +23,15 @@ const Login = () => {
         console.log("ERROR", error.message);
       });
   };
+
+  const handleGoogleLogin = ()=>{
+    signInWithGoogle()
+    .then(result=>{
+      console.log(result.user);
+      navigate('/')
+    })
+    .catch(error => console.log("ERROR", error.message))
+  }
 
   return (
     <div className="hero bg-base-200">
@@ -72,7 +81,7 @@ const Login = () => {
             </Link>
           </p>
           <p>
-            <button className="btn btn-ghost">Google</button>
+            <button onClick={handleGoogleLogin} className="btn btn-ghost">Google</button>
           </p>
         </div>
       </div>
